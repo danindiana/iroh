@@ -1,4 +1,4 @@
-name: Relay Smoke Test (Linux)
+name: Relay Smoke Test
 
 on:
   push:
@@ -21,16 +21,22 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  linux-smoke:
-    name: ubuntu-latest
-    runs-on: ubuntu-latest
+  smoke:
+    name: ${{ matrix.os }} / ${{ matrix.rust }}
+    runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.rust == 'nightly' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, ubuntu-latest]
+        rust: [stable, beta, nightly]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Install Rust
+      - name: Install Rust (${{ matrix.rust }})
         uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: stable
+          toolchain: ${{ matrix.rust }}
           components: clippy
       - name: Cache cargo
         uses: actions/cache@v4
@@ -40,9 +46,17 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-${{ matrix.rust }}-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
             ${{ runner.os }}-cargo-
       - name: Run relay smoke test
         run: |
           bash scripts/relay-smoke-test.sh
+      - name: Upload relay logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: relay-logs-${{ matrix.os }}-${{ matrix.rust }}
+          path: |
+            tmp/relay-smoke.log
+          if-no-files-found: ignore
