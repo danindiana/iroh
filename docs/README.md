@@ -12,6 +12,7 @@ High-level and developer documentation for Iroh.
 - Relay development helper script: `../scripts/local-relay-setup.sh`
 - Contribution guidelines: `../CONTRIBUTING.md`
 - Code of Conduct: `../code_of_conduct.md`
+ - Fork notes and sync strategy: `fork-notes.md`
 
 ## Suggested Order for New Contributors
 1. Read the main `README.md`.

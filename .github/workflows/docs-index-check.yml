@@ -1,0 +1,23 @@
+name: Docs Index Check
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'docs/**'
+      - '.github/scripts/check-docs-index.sh'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'docs/**'
+      - '.github/scripts/check-docs-index.sh'
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Run docs index checker
+        run: |
+          bash .github/scripts/check-docs-index.sh
