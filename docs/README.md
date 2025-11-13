@@ -7,6 +7,7 @@ High-level and developer documentation for Iroh.
 - `relays.md` – General information about relays.
 - `local_relays.md` – Conceptual overview of using local relays.
 - `local-relay-dev.md` – Hands-on local relay + QUIC Address Discovery (QAD) setup, validation & troubleshooting.
+ - `summary-2025-11-12.md` – Summary of fork updates and local relay/QAD workflow (2025-11-12).
 
 ## Auxiliary / Related Topics
 - Relay development helper script: `../scripts/local-relay-setup.sh`
