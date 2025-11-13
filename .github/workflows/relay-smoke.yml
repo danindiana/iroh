@@ -1,0 +1,48 @@
+name: Relay Smoke Test (Linux)
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'iroh-relay/**'
+      - 'scripts/relay-smoke-test.sh'
+      - 'scripts/local-relay-setup.sh'
+      - '.github/workflows/relay-smoke.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'iroh-relay/**'
+      - 'scripts/relay-smoke-test.sh'
+      - 'scripts/local-relay-setup.sh'
+      - '.github/workflows/relay-smoke.yml'
+
+concurrency:
+  group: relay-smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  linux-smoke:
+    name: ubuntu-latest
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+          components: clippy
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+      - name: Run relay smoke test
+        run: |
+          bash scripts/relay-smoke-test.sh
