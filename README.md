@@ -127,6 +127,25 @@ If you want to use iroh from other languages, make sure to check out [iroh-ffi],
 - [Iroh Experiments]
 - [Local Relay & QUIC Address Discovery Guide](docs/local-relay-dev.md)
 
+### Fork-Specific Additions (danindiana/iroh)
+
+This fork maintains additional relay/QAD development materials not merged upstream:
+
+- `docs/README.md` – documentation index.
+- `docs/local-relay-dev.md` – end-to-end local relay + QAD workflow (with troubleshooting).
+- `scripts/local-relay-setup.sh` – helper script to bootstrap certs & configs.
+- `docs/fork-notes.md` – rationale & sync strategy.
+
+To sync with upstream and keep fork customizations:
+```
+git fetch origin  # origin points to upstream n0-computer/iroh
+git fetch fork    # fork remote (if not already)
+git checkout main
+git rebase origin/main
+git push fork main
+```
+(Resolve any conflicts in the added docs keeping fork-specific content.)
+
 ## Repository Structure
 
 This repository contains a workspace of crates:
