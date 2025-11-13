@@ -10,11 +10,7 @@ on:
       - '.github/workflows/relay-smoke.yml'
   pull_request:
     branches: [ main ]
-    paths:
-      - 'iroh-relay/**'
-      - 'scripts/relay-smoke-test.sh'
-      - 'scripts/local-relay-setup.sh'
-      - '.github/workflows/relay-smoke.yml'
+  workflow_dispatch:
 
 concurrency:
   group: relay-smoke-${{ github.ref }}
@@ -24,11 +20,11 @@ jobs:
   smoke:
     name: ${{ matrix.os }} / ${{ matrix.rust }}
     runs-on: ${{ matrix.os }}
-    continue-on-error: ${{ matrix.rust == 'nightly' }}
+    continue-on-error: ${{ matrix.rust == 'nightly' || (matrix.os != 'ubuntu-22.04' && matrix.os != 'ubuntu-latest') }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-22.04, ubuntu-latest]
+        os: [ubuntu-22.04, ubuntu-latest, macos-latest, windows-latest]
         rust: [stable, beta, nightly]
     steps:
       - name: Checkout
@@ -49,11 +45,18 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ matrix.rust }}-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
             ${{ runner.os }}-cargo-
-      - name: Run relay smoke test
+      - name: Run relay smoke test (Linux)
+        if: startsWith(matrix.os, 'ubuntu')
         run: |
           bash scripts/relay-smoke-test.sh
-      - name: Upload relay logs on failure
-        if: failure()
+      - name: Build relay (non-Linux)
+        if: ${{ !startsWith(matrix.os, 'ubuntu') }}
+        shell: bash
+        run: |
+          rustc -V
+          cargo build -p iroh-relay
+      - name: Upload relay logs on failure (Linux)
+        if: failure() && startsWith(matrix.os, 'ubuntu')
         uses: actions/upload-artifact@v4
         with:
           name: relay-logs-${{ matrix.os }}-${{ matrix.rust }}
